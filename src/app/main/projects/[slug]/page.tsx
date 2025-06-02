@@ -1,95 +1,83 @@
-// src/app/(main)/projects/[slug]/page.tsx
-import { getProjectBySlug, projects } from '@/lib/data';
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { getProjectBySlug, projects } from "@/lib/data";
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { Metadata } from "next";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-// Para generar rutas estáticas en build time (importante para SEO y rendimiento)
+// Genera los slugs para las rutas estáticas
 export async function generateStaticParams() {
   return projects.map((project) => ({
     slug: project.id,
   }));
 }
 
-type ProjectDetailsPageProps = {
+// Props tipadas correctamente
+interface Props {
   params: {
     slug: string;
   };
-};
+}
 
-export async function generateMetadata({ params }: ProjectDetailsPageProps) {
-  const project = getProjectBySlug(params.slug);
-
+// Metadata dinámica para SEO
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params; // 👈 await aquí
+  const project = getProjectBySlug(slug);
   if (!project) {
-    return {
-      title: 'Proyecto no encontrado',
-    };
+    return { title: "Proyecto no encontrado" };
   }
-
   return {
-    title: `${project.title} - Mi Portafolio`,
+    title: `Proyecto: ${project.title}`,
     description: project.shortDescription,
-    // Puedes añadir más meta tags aquí, como og:image
     openGraph: {
-        images: [project.image],
+      images: [project.image],
     },
   };
 }
 
-
-export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) {
-  const project = getProjectBySlug(params.slug);
+// Página del proyecto
+export default async function ProjectPage({ params }: Props) {
+  const { slug } = await params;
+  const project = getProjectBySlug(slug);
 
   if (!project) {
-    notFound(); // Muestra la página 404 si el proyecto no existe
+    notFound();
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Link href="/projects" className="text-blue-600 hover:underline mb-4 block">
-        &larr; Volver a Proyectos
+    <main className="max-w-2xl mx-auto py-8 px-4">
+      <Link
+        href="/main/projects"
+        className="text-blue-600 hover:underline mb-4 block"
+      >
+        ← Volver a proyectos
       </Link>
-      <h1 className="text-4xl font-bold text-gray-800 mb-6">{project.title}</h1>
-      <div className="relative w-full h-80 mb-6 rounded-lg overflow-hidden shadow-lg">
-        <Image
-          src={project.image}
-          alt={project.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 700px" // Ajusta según el ancho de tu contenedor
-          className="object-cover"
-        />
-      </div>
-
-      <p className="text-gray-700 text-lg mb-6 leading-relaxed">{project.description}</p>
-
+      <h1 className="text-3xl font-bold mb-4">{project.title}</h1>
+      <Image
+        src={project.image}
+        alt={project.title}
+        width={700}
+        height={400}
+        className="rounded-lg mb-6"
+      />
+      <p className="mb-4 text-gray-700">{project.shortDescription}</p>
       {project.details && (
-          <div className="prose prose-blue max-w-none mb-6">
-              {/* Si project.details es Markdown, usa una librería como `remark` o `markdown-to-jsx` */}
-              <p>{project.details}</p>
-          </div>
+        <div className="prose mb-6">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {project.details}
+          </ReactMarkdown>
+        </div>
       )}
-
-
-      <div className="flex flex-wrap gap-2 mb-6">
-        {project.tags.map((tag) => (
-          <span
-            key={tag}
-            className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      <div className="flex gap-4">
+      <div className="flex gap-3">
         {project.githubUrl && (
           <a
             href={project.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-300"
+            className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700"
           >
-            Ver en GitHub
+            GitHub
           </a>
         )}
         {project.liveUrl && (
@@ -97,12 +85,22 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
             href={project.liveUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Ver Demo
           </a>
         )}
       </div>
-    </div>
+      <div className="mt-6 flex flex-wrap gap-2">
+        {project.tags.map((tag) => (
+          <span
+            key={tag}
+            className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </main>
   );
 }

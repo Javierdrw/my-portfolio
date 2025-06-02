@@ -11,7 +11,7 @@ type ProjectCardProps = {
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-      <Link href={`/projects/${project.id}`}>
+      <Link href={`/main/projects/${project.id}`}>
         <div className="relative w-full h-48">
           <Image
             src={project.image}
@@ -35,7 +35,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             </span>
           ))}
         </div>
-        <Link href={`/projects/${project.id}`} className="text-blue-600 hover:underline text-sm font-medium">
+        <Link href={`/main/projects/${project.id}`} className="text-blue-600 hover:underline text-sm font-medium">
           Ver Detalles &rarr;
         </Link>
       </div>

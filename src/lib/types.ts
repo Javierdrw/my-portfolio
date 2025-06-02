@@ -8,6 +8,7 @@ export type Project = {
   image: string; // Ruta a la imagen del proyecto
   tags: string[]; // Ej: ['Next.js', 'TypeScript', 'Tailwind CSS']
   githubUrl?: string;
+  gitBackendUrl?: string;
   liveUrl?: string;
   details?: string; // Para la página de detalles del proyecto (ej. Markdown)
 };
