@@ -1,22 +1,43 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from '@/lib/theme-context';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Obtener la URL base
+const baseUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : 'http://localhost:3000';
 
 export const metadata: Metadata = {
   title: "Mi Portfolio",
   description: "Portfolio personal de desarrollo web",
+  metadataBase: new URL(baseUrl),
+  openGraph: {
+    title: "Mi Portfolio",
+    description: "Portfolio personal de desarrollo web",
+    url: baseUrl,
+    siteName: "Mi Portfolio",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mi Portfolio",
+    description: "Portfolio personal de desarrollo web",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  authors: [{ name: "Tu Nombre" }],
+  generator: "Next.js",
+  keywords: ["portfolio", "desarrollo web", "frontend", "react", "next.js"],
 };
 
 export default function RootLayout({
@@ -27,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="es" data-theme="light">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} font-sans antialiased`}
       >
         <ThemeProvider>
           <div className="min-h-screen flex flex-col">

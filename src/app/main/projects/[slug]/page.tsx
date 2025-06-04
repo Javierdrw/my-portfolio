@@ -13,33 +13,58 @@ export async function generateStaticParams() {
   }));
 }
 
-// Props tipadas correctamente
-interface Props {
-  params: {
-    slug: string;
-  };
+interface PageParams {
+  slug: string;
 }
 
 // Metadata dinámica para SEO
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params; // 👈 await aquí
-  const project = getProjectBySlug(slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: PageParams;
+}): Promise<Metadata> {
+  const project = getProjectBySlug(params.slug);
   if (!project) {
     return { title: "Proyecto no encontrado" };
   }
+
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000';
+
   return {
     title: `Proyecto: ${project.title}`,
     description: project.shortDescription,
     openGraph: {
+      title: `Proyecto: ${project.title}`,
+      description: project.shortDescription,
+      images: [
+        {
+          url: project.image,
+          width: 1200,
+          height: 630,
+          alt: project.title,
+        },
+      ],
+      url: `${baseUrl}/main/projects/${params.slug}`,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Proyecto: ${project.title}`,
+      description: project.shortDescription,
       images: [project.image],
     },
   };
 }
 
 // Página del proyecto
-export default async function ProjectPage({ params }: Props) {
-  const { slug } = await params;
-  const project = getProjectBySlug(slug);
+export default function ProjectPage({
+  params,
+}: {
+  params: PageParams;
+}) {
+  const project = getProjectBySlug(params.slug);
 
   if (!project) {
     notFound();
